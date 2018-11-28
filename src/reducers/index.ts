@@ -1,22 +1,69 @@
-import number from './number';
-import color from './color';
+import * as types from '../actions/ActionTypes';
 
-import { combineReducers } from 'redux';
+const initialState = {
+  counters: [
+    {
+      color: '#000',
+      number: 0,
+    },
+  ],
+};
 
-/* 서브 리듀서들을 하나로 합칩니다.
- * combineReducers 를 실행하고 나면, 나중에 store 형태를 파라미터로
- * 전달한 객체 모양대로 만듭니다.
- * 지금은 다음과 같이 만듭니다.
- * {
- *  numberData: {
- *    number: 0,
- *  },
- *  colorData: {
- *    color: '#000',
- *  },
- * }
- */
-export const reducers = combineReducers({
-  numberData: number,
-  colorData: color,
-});
+export default function reducers(state = initialState, action) {
+  // 레퍼런스 생성
+  const { counters } = state;
+
+  switch (action.type) {
+    case types.CREATE:
+      return {
+        counters: [
+          ...counters,
+          {
+            color: action.color,
+            number: 0,
+          },
+        ],
+      };
+    case types.REMOVE:
+      return {
+        counters: [
+          ...counters.slice(0, counters.length - 1),
+        ],
+      };
+    case types.INCREMENT:
+      return {
+        counters: [
+          ...counters.slice(0, action.index),
+          {
+            ...counters[action.index],
+            number: counters[action.index].number + 1,
+          },
+          ...counters.slice(action.index + 1, counters.length),
+        ],
+      };
+    case types.DECREMENT:
+      return {
+        counters: [
+          ...counters.slice(0, action.index),
+          {
+            ...counters[action.index],
+            number: counters[action.index].number - 1,
+          },
+          ...counters.slice(action.index + 1, counters.length),
+        ],
+      };
+    case types.SET_COLOR:
+      return {
+        counters: [
+          ...counters.slice(0, action.index),
+          {
+            ...counters[action.index],
+            color: action.color,
+          },
+          ...counters.slice(action.index + 1, counters.length),
+        ],
+      };
+    default:
+      return state;
+  }
+}
